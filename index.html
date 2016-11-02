@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Marklet Editor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>Marklet Editor</h1>
+</header>
+<div class="left">
+    <select id="marklet-langage">
+        <option value="coffee">CoffeeScript</option>
+        <option value="javascript">JavaScript</option>
+        <!-- <option value="TypeScript">TypeScript</option> -->
+    </select>
+    <pre id="marklet-editor">
+body = document.body
+markletEditor = document.createElement "p"
+
+markletEditor.innerHTML = "Hello, Marklet Editor!"
+
+markletEditor.style.cssText = "
+    position:absolute;
+    top:#{ Math.random() * window.innerHeight }px;
+    left:#{ Math.random() * window.innerWidth }px;
+    color:hsl(#{ Math.random() * 360 },100%,50%);
+"
+
+
+markletEditor.onclick = () -&gt;
+    body.removeChild @
+    return
+
+body.appendChild markletEditor
+</pre>
+    <div class="link-contener">
+        <a id="link" href="javascript:void(0)" title="Bookmarklet">Bookmarklet</a>
+        <br>
+        <small>クリックで実行、ブックマークバーにドラックで登録</small>
+    </div>
+    <ul>
+        <li>
+            <input type="checkbox" id="wrapper" checked>
+            <label for="wrapper">(function(){...})()</label>
+        </li>
+        <li>
+            <input type="checkbox" id="encodeURI" checked>
+            <label for="encodeURI">EncodeURI</label>
+        </li>
+        <li>
+            <input type="checkbox" id="opt-uglify" checked>
+            <label for="opt-uglify">Minify (UglifyJS)</label>
+        </li>
+    </ul>
+    <div>
+        Bookmarklet Source: (<span id="chars">0</span> chars)
+        <br>
+        <textarea id="output" rows="3"></textarea>
+    </div>
+</div>
+<div class="right">
+    <div >
+        <iframe id="iframe"></iframe>
+    </div>
+    <div>
+        <pre id="html-editor" class="ace-editor">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;title&gt;Test Page | Marklet Editor&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header&gt;
+    &lt;h1&gt;Test Page&lt;/h1&gt;
+&lt;/header&gt;
+&lt;p&gt;
+    作成したブックマークレットはこのページで実行されます。
+&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+    </div>
+</div>
+
+<!-- script -->
+<script src="lib/ace/ace.js"></script>
+<script src="lib/uglify.js"></script>
+
+<script src="lib/coffee-script.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

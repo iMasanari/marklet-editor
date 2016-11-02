@@ -1,0 +1,65 @@
+body {
+    /*overflow: hidden;*/
+}
+
+.link-contener {
+    text-align: center;
+}
+
+#link {
+    display: inline-block;
+    padding: .5em 1em;
+    margin: 1em auto;
+    border: 1px solid #04cfdc;
+    border-radius: 5px;
+    color: #04cfdc;
+    text-decoration: none;
+}
+#marklet-editor {
+    width: 500px;
+    height: 300px;
+}
+.ace-editor {
+    width: 500px;
+    height: 300px;
+    margin: 0;
+}
+
+#output {
+    width: 500px;
+    resize: none;
+    font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    word-break: break-all;
+}
+
+#iframe {
+    display: block;
+    width: 500px;
+    height: 300px;
+    border: 1px solid #ddd;
+}
+
+.left {
+    float: left;
+}
+.right {
+    float: left;
+}
+/*
+.js-tabs .tab-menu{
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+.js-tabs .tab-menu li{
+    display: inline;
+    background: #ddd;
+    margin: 0px;
+    padding: 2px;
+}
+.js-tabs .tab-menu li a{
+    padding: 3px;
+}*/
+input:not(:checked) + .tab-content{
+    display: none;
+}
