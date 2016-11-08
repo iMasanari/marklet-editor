@@ -12,29 +12,27 @@
 </header>
 <div class="left">
     <select id="marklet-langage">
-        <option value="coffee">CoffeeScript</option>
         <option value="javascript">JavaScript</option>
+        <option value="coffee">CoffeeScript</option>
         <!-- <option value="TypeScript">TypeScript</option> -->
     </select>
     <pre id="marklet-editor">
-body = document.body
-markletEditor = document.createElement "p"
+var body = document.body;
+var markletEditor = document.createElement("p");
 
-markletEditor.innerHTML = "Hello, Marklet Editor!"
+markletEditor.innerHTML = "Hello, Marklet Editor!";
 
-markletEditor.style.cssText = "
-    position:absolute;
-    top:#{ Math.random() * window.innerHeight }px;
-    left:#{ Math.random() * window.innerWidth }px;
-    color:hsl(#{ Math.random() * 360 },100%,50%);
-"
+markletEditor.style.cssText = "position:absolute;"
+    + "top:" + Math.random() * window.innerHeight + "px;"
+    + "left:" + Math.random() * window.innerWidth + "px;"
+    + "color:hsl(" + Math.random() * 360 + ",100%,50%)";
 
+markletEditor.onclick = function () {
+    body.removeChild(this);
+};
 
-markletEditor.onclick = () -&gt;
-    body.removeChild @
-    return
+body.appendChild(markletEditor);
 
-body.appendChild markletEditor
 </pre>
     <div class="link-contener">
         <a id="link" href="javascript:void(0)" title="Bookmarklet">Bookmarklet</a>
