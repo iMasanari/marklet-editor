@@ -1,8 +1,8 @@
-(function() {
+(function () {
     'use strict';
-    var optLangage = document.getElementById('marklet-langage');
 
     var link = document.getElementById('link');
+    var optLangage = document.getElementById('marklet-langage');
     var wrapper = document.getElementById('wrapper');
     var elEncode = document.getElementById('encodeURI');
     var optUglify = document.getElementById('opt-uglify');
@@ -11,10 +11,18 @@
     var output = document.getElementById('output');
     var iframe = document.getElementById('iframe');
 
-    var delay = function(fnc, time) {
+    var options = {
+        parse: {},
+        compress: {},
+        output: {
+            quote_style: 1
+        }
+    }
+
+    var delay = function (fnc, time) {
         var timer;
 
-        return function() {
+        return function () {
             clearTimeout(timer);
 
             return timer = setTimeout(fnc, time);
@@ -23,13 +31,13 @@
 
     var BlobURL = {
         list: [],
-        create: function(text, type) {
-            var url = window.URL.createObjectURL(new Blob([text], {type: type}));
+        create: function (text, type) {
+            var url = window.URL.createObjectURL(new Blob([text], { type: type }));
             this.list.push(url);
             return url;
         },
-        clear: function() {
-            for (var i = this.list.length; i--; ) {
+        clear: function () {
+            for (var i = this.list.length; i--;) {
                 window.URL.revokeObjectURL(this.list[i]);
             }
             this.list = [];
@@ -45,7 +53,7 @@
 
     markletEditor.on('change', delay(createBookmarklet, 500), false);
 
-    optLangage.addEventListener('change', function() {
+    optLangage.addEventListener('change', function () {
         markletEditor = ace.edit('marklet-editor');
         markletEditor.getSession().setMode('ace/mode/' + this.value);
         createBookmarklet();
@@ -65,7 +73,7 @@
 
     link.addEventListener('click', runBookmarklet, false);
 
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
             runBookmarklet(e);
         }
@@ -85,7 +93,7 @@
 
         if (optLangage.value === 'coffee') {
             try {
-                code = CoffeeScript.compile(code, {bare: true});
+                code = CoffeeScript.compile(code, { bare: true });
             } catch (e) {
                 output.value = e.stack;
                 // outputEditor.getSession().setValue(e.stack, 1);
@@ -100,7 +108,7 @@
 
         if (optUglify.checked) {
             try {
-                code = uglify(code);
+                code = minify(code, options);
             } catch (e) {
                 output.value = e.message;
                 return;
@@ -110,7 +118,7 @@
             code = code.replace(/\s*([^A-Za-z0-9_$])\s*/g, '$1');
         }
 
-        if (elEncode.checked){
+        if (elEncode.checked) {
             code = encodeURI(code);
         }
 
@@ -126,4 +134,20 @@
 
         iframe.contentWindow.location.replace(BlobURL.create(htmlEditor.getSession().getValue(), 'text/html'));
     }
-}());
+
+    function minify(code, options) {
+        options = options || {};
+
+        var toplevel_ast = UglifyJS.parse(code, options.parse || {});
+        toplevel_ast.figure_out_scope();
+
+        var compressor = new UglifyJS.Compressor(options.compress || {});
+        var compressed_ast = toplevel_ast.transform(compressor);
+
+        compressed_ast.figure_out_scope();
+        compressed_ast.compute_char_frequency();
+        compressed_ast.mangle_names();
+
+        return compressed_ast.print_to_string(options.output || {});
+    }
+})();
