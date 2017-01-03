@@ -1,28 +1,24 @@
-(function () {
+(function() {
     'use strict';
 
     var link = document.getElementById('link');
-    var optLangage = document.getElementById('marklet-langage');
-    var wrapper = document.getElementById('wrapper');
-    var elEncode = document.getElementById('encodeURI');
-    var optUglify = document.getElementById('opt-uglify');
+    var langage = document.getElementById('marklet-langage');
+    var options = {
+        enclose: document.getElementById('enclose'),
+        mangle: document.getElementById('mangle'),
+        keep_fnames: document.getElementById('keep_fnames'),
+        unsafe: document.getElementById('unsafe'),
+        encode: document.getElementById('encodeURI')
+    }
 
     var chars = document.getElementById('chars');
     var output = document.getElementById('output');
     var iframe = document.getElementById('iframe');
 
-    var options = {
-        parse: {},
-        compress: {},
-        output: {
-            quote_style: 1
-        }
-    }
-
-    var delay = function (fnc, time) {
+    var delay = function(fnc, time) {
         var timer;
 
-        return function () {
+        return function() {
             clearTimeout(timer);
 
             return timer = setTimeout(fnc, time);
@@ -31,12 +27,12 @@
 
     var BlobURL = {
         list: [],
-        create: function (text, type) {
+        create: function(text, type) {
             var url = window.URL.createObjectURL(new Blob([text], { type: type }));
             this.list.push(url);
             return url;
         },
-        clear: function () {
+        clear: function() {
             for (var i = this.list.length; i--;) {
                 window.URL.revokeObjectURL(this.list[i]);
             }
@@ -47,21 +43,22 @@
     var markletEditor = ace.edit('marklet-editor');
 
     // markletEditor.setTheme('ace/theme/twilight');
-    markletEditor.getSession().setMode('ace/mode/' + optLangage.value);
+    markletEditor.getSession().setMode('ace/mode/' + langage.value);
     markletEditor.getSession().setUseWrapMode(true);
     markletEditor.$blockScrolling = Infinity;
 
     markletEditor.on('change', delay(createBookmarklet, 500), false);
 
-    optLangage.addEventListener('change', function () {
+    langage.addEventListener('change', function() {
         markletEditor = ace.edit('marklet-editor');
         markletEditor.getSession().setMode('ace/mode/' + this.value);
         createBookmarklet();
     }, false);
 
-    elEncode.addEventListener('change', createBookmarklet, false);
-    wrapper.addEventListener('change', createBookmarklet, false);
-    optUglify.addEventListener('change', createBookmarklet, false);
+    for (var key in options) {
+        if (!options.hasOwnProperty(key)) continue;
+        options[key].addEventListener('change', createBookmarklet, false);
+    }
 
     var htmlEditor = ace.edit('html-editor');
 
@@ -73,7 +70,7 @@
 
     link.addEventListener('click', runBookmarklet, false);
 
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', function(e) {
         if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
             runBookmarklet(e);
         }
@@ -91,7 +88,7 @@
     function createBookmarklet() {
         var code = markletEditor.getValue();
 
-        if (optLangage.value === 'coffee') {
+        if (langage.value === 'coffee') {
             try {
                 code = CoffeeScript.compile(code, { bare: true });
             } catch (e) {
@@ -102,27 +99,23 @@
             }
         }
 
-        if (wrapper.checked) {
-            code = '(function(){' + code + '\n})()';
+        try {
+            code = minify(code, {
+                enclose: options.enclose.checked,
+                mangle: options.mangle.checked,
+                unsafe: options.unsafe.checked,
+                keep_fnames: options.keep_fnames.checked
+            });
+        } catch (e) {
+            output.value = e.message;
+            return;
         }
 
-        if (optUglify.checked) {
-            try {
-                code = minify(code, options);
-            } catch (e) {
-                output.value = e.message;
-                return;
-            }
-        } else {
-            code = code.replace(/\n\s*/g, '');
-            code = code.replace(/\s*([^A-Za-z0-9_$])\s*/g, '$1');
-        }
-
-        if (elEncode.checked) {
+        if (options.encode.checked) {
             code = encodeURI(code);
         }
 
-        code = 'javascript:' + code.replace(/;\}/g, '}');
+        code = 'javascript:' + code;
 
         chars.innerHTML = code.length;
         output.value = link.href = code;
@@ -136,18 +129,27 @@
     }
 
     function minify(code, options) {
-        options = options || {};
+        var toplevel_ast = UglifyJS.parse(code);
 
-        var toplevel_ast = UglifyJS.parse(code, options.parse || {});
+        if (options.enclose) toplevel_ast = toplevel_ast.wrap_enclose([]);
+
         toplevel_ast.figure_out_scope();
 
-        var compressor = new UglifyJS.Compressor(options.compress || {});
+        var compressor = new UglifyJS.Compressor({
+            unsafe: options.unsafe || false
+        });
         var compressed_ast = toplevel_ast.transform(compressor);
 
-        compressed_ast.figure_out_scope();
-        compressed_ast.compute_char_frequency();
-        compressed_ast.mangle_names();
+        if (options.mangle) {
+            compressed_ast.figure_out_scope();
+            compressed_ast.compute_char_frequency();
+            compressed_ast.mangle_names({
+                keep_fnames: options.keep_fnames || false
+            });
+        }
 
-        return compressed_ast.print_to_string(options.output || {});
+        return compressed_ast.print_to_string({
+            quote_style: 1
+        });
     }
 })();

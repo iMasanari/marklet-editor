@@ -28,11 +28,10 @@ markletEditor.style.cssText = "position:absolute;"
     + "color:hsl(" + Math.random() * 360 + ",100%,50%)";
 
 markletEditor.onclick = function () {
-    body.removeChild(this);
+    body.removeChild(markletEditor);
 };
 
 body.appendChild(markletEditor);
-
 </pre>
     <div class="link-contener">
         <a id="link" href="javascript:void(0)" title="Bookmarklet">Bookmarklet</a>
@@ -41,16 +40,27 @@ body.appendChild(markletEditor);
     </div>
     <ul>
         <li>
-            <input type="checkbox" id="wrapper" checked>
-            <label for="wrapper">(function(){...})()</label>
-        </li>
-        <li>
             <input type="checkbox" id="encodeURI" checked>
             <label for="encodeURI">EncodeURI</label>
         </li>
         <li>
-            <input type="checkbox" id="opt-uglify" checked>
-            <label for="opt-uglify">Minify (UglifyJS)</label>
+            <input type="checkbox" id="enclose" checked>
+            <label for="enclose">Enclose</label>
+        </li>
+        <li>
+            <input type="checkbox" id="unsafe" checked>
+            <label for="unsafe">Unsafe</label>
+        </li>
+        <li>
+            <input type="checkbox" id="mangle" checked>
+            <label for="mangle">Mangle</label>
+
+            <ul>
+                <li>
+                    <input type="checkbox" id="keep_fnames">
+                    <label for="keep_fnames">Keep function names</label>
+                </li>
+            </ul>
         </li>
     </ul>
     <div>
@@ -78,7 +88,8 @@ body.appendChild(markletEditor);
     作成したブックマークレットはこのページで実行されます。
 &lt;/p&gt;
 &lt;/body&gt;
-&lt;/html&gt;</pre>
+&lt;/html&gt;
+</pre>
     </div>
 </div>
 
